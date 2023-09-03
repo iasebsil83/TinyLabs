@@ -1,0 +1,184 @@
+#!/usr/bin/python3
+
+
+
+
+
+
+# -------- IMPORTATIONS --------
+
+#system
+import os, sys
+sys.path.append(".")
+
+#tools
+from   tools.general        import *
+from   tools.check_contents import *
+from   tools.create_new_lab import *
+
+#subcommands
+import subcmd.action
+import subcmd.group
+import subcmd.project
+import subcmd.scheduler
+import subcmd.user
+
+
+
+
+
+# -------- DECLARATIONS --------
+
+#define possible services
+SERVICE__CHECK_CFG  = 0
+SERVICE__EDIT_CFG   = 1
+SERVICE__CHECK_INT  = 2
+SERVICE__NEW_LAB    = 3
+SERVICE__GET_STATUS = 4
+
+
+
+
+
+
+# -------- EXECUTION --------
+
+#main
+def main(args):
+
+	# INITIALIZATION
+
+	#options
+	service = SERVICE__GET_STATUS
+
+
+
+	# PARSING
+
+	#for each argument
+	indexes_to_remove = []
+	args = args[1:]
+	for a in range(len(args)):
+
+		#option detected
+		if args[a][0] == '-': # (args can't contain empty strings)
+
+			#help menu
+			if args[a] in ("-h", "--help"):
+				print("Usage: tinylabs [options] <lab>")
+				print("       tinylabs <subcmd>  [options]  <lab>")
+				print("Deploy & manage your repository labs as you want.")
+				print()
+				print("Options:")
+				print("  -c, --check-cfg  : Check general configuration of given lab.")
+				print("  -e, --edit-cfg   : Edit general configuration of given lab.")
+				print("  -h, --help       : Show this help menu.")
+				print("  -i, --check-int  : Check lab integrity (fs structure + content).")
+				print("  -n, --new        : Create a new lab.")
+				print("                     With this option, lab must be specified using path.")
+				print("  -s, --status     : Get lab status.")
+				print("                     If no option is given, this one is set.")
+				print()
+				print("Available subcommands are:")
+				print("    tinylabs action    [options] <lab> <action_path>")
+				print("             group     [options] <lab> <group_path>")
+				print("             project   [options] <lab> <project_path>")
+				print("             scheduler [options] <lab>")
+				print("             user      [options] <lab> <user_idname>")
+				print()
+				print("Use option '--help' for more details about them.")
+				print()
+				print("NOTE: The <lab> argument can be given either by path or URL.")
+				print()
+				exit(0)
+
+			#option : check general config
+			elif args[a] in ("-c", "--check-cfg"):
+				service = SERVICE__CHECK_CFG
+
+				#remove from arguments
+				indexes_to_remove.append(a)
+
+			#option : edit general config
+			elif args[a] in ("-e", "--edit-cfg"):
+				service = SERVICE__EDIT_CFG
+
+				#remove from arguments
+				indexes_to_remove.append(a)
+
+			#option : check integrity
+			elif args[a] in ("-i", "--check-int"):
+				service = SERVICE__CHECK_INT
+
+				#remove from arguments
+				indexes_to_remove.append(a)
+
+			#option : create new lab
+			elif args[a] in ("-n", "--new"):
+				service = SERVICE__NEW_LAB
+
+				#remove from arguments
+				indexes_to_remove.append(a)
+
+			#option : get lab status
+			elif args[a] in ("-s", "--status"):
+				service = SERVICE__GET_STATUS
+
+				#remove from arguments
+				indexes_to_remove.append(a)
+
+			#undefined option
+			else:
+				Err_fatal("Unknown option '" + args[a] + "'.")
+
+	#update argument list
+	args = Lst_removeAll(args, indexes_to_remove)
+
+	#no arguments left
+	if len(args) == 0:
+		Err_fatal("Missing lab path or URL.")
+
+	#redirect to subcommands
+	if args[0] in == "action":
+		tinylabs_action(args[1:])
+	if args[0] in == "group":
+		tinylabs_group(args[1:])
+	if args[0] in == "project":
+		tinylabs_project(args[1:])
+	if args[0] in == "scheduler":
+		tinylabs_scheduler(args[1:])
+	if args[0] in == "user":
+		tinylabs_user(args[1:])
+
+	#no redirection => that must be a lab path/URL
+	lab = args[0]
+
+
+
+	# DISTRIBUTE TO CORRECT SERVICE
+
+	#case 1 : check config
+	if service == SERVICE__CHECK_CFG:
+		checkSettings(lab, MODE__GENERAL, "settings.cfg")
+
+	#case 2 : edit config
+	if service == SERVICE__EDIT_CFG:
+		onlyPath(lab)
+		edit(lab + "/settings.cfg")
+
+	#case 3 : create new lab
+	if service == SERVICE__NEW_LAB:
+		createNewLab(lab)
+
+	#case 4 : create new lab
+	if service == SERVICE__CHECK_INT:
+		checkIntegrity(lab, MODE__GENERAL, None)
+
+	#case 5 : get status
+	elif service == SERVICE__GET_STATUS:
+		getStatus(lab, MODE__GENERAL, None)
+
+
+
+#run main
+main(sys.argv)
