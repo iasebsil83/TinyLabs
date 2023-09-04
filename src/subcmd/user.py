@@ -9,10 +9,13 @@
 
 #system
 import os, sys
-sys.path.append(".")
+SRC_DIR = os.path.dirname(os.getcwd())
+if SRC_DIR not in sys.path:
+	sys.path.append(SRC_DIR)
 
 #tools
 from tools.general         import *
+from tools.status          import *
 from tools.check_contents  import *
 from tools.create_new_user import *
 
@@ -127,8 +130,12 @@ def tinylabs_user(args):
 
 	#case 2 : edit config
 	elif service == SERVICE__EDIT_CFG:
-		onlyPath(lab)
-		edit(lab + "/users/" + user_idname + "/settings.cfg")
+		if isPath(lab):
+			edit(lab + "/users/" + user_idname + "/settings.cfg")
+			return
+
+		#URL
+		Err_fatal("URL request for editing user settings has not been implemented yet.")
 
 	#case 3 : create new user
 	elif service == SERVICE__NEW_USER:
@@ -140,7 +147,7 @@ def tinylabs_user(args):
 
 	#case 5 : get status
 	elif service == SERVICE__GET_STATUS:
-		getStatus(lab, MODE__USER, user_idname)
+		printStatus(lab, MODE__USER, user_idname)
 
 	#end of execution
 	exit(0)

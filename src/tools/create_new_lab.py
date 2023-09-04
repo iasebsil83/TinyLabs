@@ -6,12 +6,13 @@
 # -------- IMPORTATIONS --------
 
 #system
-import os, sys
-sys.path.append(".")
+import sys, os, sys
+SRC_DIR = os.path.dirname(os.getcwd())
+if SRC_DIR not in sys.path:
+	sys.path.append(SRC_DIR)
 
 #tools
-import config
-from general import *
+from tools.general import *
 
 
 
@@ -22,21 +23,26 @@ from general import *
 
 #create new lab
 def createNewLab(lab):
-	onlyPath(lab)
+	if isPath(lab):
 
-	#check existence
-	if os.path.exists(lab):
-		Err_fatal("Could not create lab at location '" + lab + "', element already exists.")
+		#check existence
+		if os.path.exists(lab):
+			Err_fatal("Could not create lab at location '" + lab + "', element already exists.")
 
-	#check filename
-	checkIDName(lab)
+		#check lab name
+		if not checkIDName(lab):
+			Err_fatal("Could not continue, stopping lab creation.")
 
-	#beginning message
-	print("Creating a new lab at '" + lab + "'...")
+		#beginning message
+		print("Starting lab creation at '" + lab + "'...")
 
-	#create directories
-	if shutil.copy2(INSTALL_DIR + "/templates/empty_lab", lab):
-		Err_fatal("Error creating new lab (could not copy default template to destination).")
+		#copy lab template
+		if shutil.copy2(INSTALL_DIR + "/templates/default/lab", lab):
+			Err_fatal("Error creating new lab (could not copy default template to destination).")
 
-	#end message
-	print("New lab successfully created at '" + lab + "'.")
+		#end message
+		print("New lab successfully created at '" + lab + "'.")
+		return
+
+	#URL
+	Err_fatal("URL request for creating a new lab has not been implemented yet.")

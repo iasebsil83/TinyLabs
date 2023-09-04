@@ -8,12 +8,14 @@
 # -------- IMPORTATIONS --------
 
 #system
-import sys
-sys.path.append(".")
+import sys, os
+SRC_DIR = os.path.dirname(os.getcwd())
+if SRC_DIR not in sys.path:
+	sys.path.append(SRC_DIR)
 
 #tools
-import config
-from general import *
+import tools.config  as config
+from   tools.general import *
 
 
 
@@ -69,7 +71,7 @@ def checkSettings(lab, mode, filename): #filename is RELATIVE to lab path (or UR
 
 			#specific analysis
 			if cfg_field == "DELAY_BETWEEN_CHECK":
-				match = re.match("[0-9]{14}", cfg[cfg_field])
+				match = re.match("[0-9]{9}", cfg[cfg_field])
 			elif cfg_field == "TRIGGER_NUMBER_MAX":
 				match = re.match("[0-9]+", cfg[cfg_field])
 			#elif cfg_field == "":
@@ -170,7 +172,7 @@ def checkSettings(lab, mode, filename): #filename is RELATIVE to lab path (or UR
 				continue
 
 			#error case 2 : invalid value
-			if not re.match("(MANUAL|EVERY[0-9]{14}|EACH[0-9]{14}|ANY_PUSH|TAG_PUSH.+)", cfg[cfg_field]):
+			if not re.match("(MANUAL|EVERY[0-9]{9}|EACH[0-9]{9}|ANY_PUSH|TAG_PUSH.+)", cfg[cfg_field]):
 				Err_runtime("Invalid trigger pattern for action '" + cfg_field + "' in project '" + project_name + "'.")
 				error_found = True
 

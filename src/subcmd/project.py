@@ -9,10 +9,13 @@
 
 #system
 import os, sys
-sys.path.append(".")
+SRC_DIR = os.path.dirname(os.getcwd())
+if SRC_DIR not in sys.path:
+	sys.path.append(SRC_DIR)
 
 #tools
 from tools.general            import *
+from tools.status             import *
 from tools.check_contents     import *
 from tools.create_new_project import *
 
@@ -129,8 +132,12 @@ def tinylabs_project(args):
 
 	#case 2 : edit config
 	elif service == SERVICE__EDIT_CFG:
-		onlyPath(lab)
-		edit(lab + '/' + project_path + "/settings.cfg")
+		if isPath(lab):
+			edit(lab + '/' + project_path + "/settings.cfg")
+			return
+
+		#URL
+		Err_fatal("URL request for editing project settings has not been implemented yet.")
 
 	#case 3 : create new project
 	elif service == SERVICE__NEW_PROJECT:
@@ -142,7 +149,7 @@ def tinylabs_project(args):
 
 	#case 5 : get status
 	elif service == SERVICE__GET_STATUS:
-		getStatus(lab, MODE__PROJECT, project_path)
+		printStatus(lab, MODE__PROJECT, project_path)
 
 	#end of execution
 	exit(0)

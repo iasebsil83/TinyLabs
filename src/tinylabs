@@ -9,19 +9,22 @@
 
 #system
 import os, sys
-sys.path.append(".")
+SRC_DIR = os.getcwd() + "/src"
+if SRC_DIR not in sys.path:
+    sys.path.append(SRC_DIR)
 
 #tools
-from   tools.general        import *
-from   tools.check_contents import *
-from   tools.create_new_lab import *
+from tools.general        import *
+from tools.status         import *
+from tools.check_contents import *
+from tools.create_new_lab import *
 
 #subcommands
-import subcmd.action
-import subcmd.group
-import subcmd.project
-import subcmd.scheduler
-import subcmd.user
+from subcmd.action    import tinylabs_action
+from subcmd.group     import tinylabs_group
+from subcmd.project   import tinylabs_project
+from subcmd.scheduler import tinylabs_scheduler
+from subcmd.user      import tinylabs_user
 
 
 
@@ -139,15 +142,15 @@ def main(args):
 		Err_fatal("Missing lab path or URL.")
 
 	#redirect to subcommands
-	if args[0] in == "action":
+	if args[0] == "action":
 		tinylabs_action(args[1:])
-	if args[0] in == "group":
+	if args[0] == "group":
 		tinylabs_group(args[1:])
-	if args[0] in == "project":
+	if args[0] == "project":
 		tinylabs_project(args[1:])
-	if args[0] in == "scheduler":
+	if args[0] == "scheduler":
 		tinylabs_scheduler(args[1:])
-	if args[0] in == "user":
+	if args[0] == "user":
 		tinylabs_user(args[1:])
 
 	#no redirection => that must be a lab path/URL
@@ -163,8 +166,12 @@ def main(args):
 
 	#case 2 : edit config
 	if service == SERVICE__EDIT_CFG:
-		onlyPath(lab)
-		edit(lab + "/settings.cfg")
+		if isPath(lab):
+			edit(lab + "/settings.cfg")
+			return
+
+		#URL
+		Err_fatal("URL request for editing lab settings has not been implemented yet.")
 
 	#case 3 : create new lab
 	if service == SERVICE__NEW_LAB:
@@ -176,7 +183,7 @@ def main(args):
 
 	#case 5 : get status
 	elif service == SERVICE__GET_STATUS:
-		getStatus(lab, MODE__GENERAL, None)
+		printStatus(lab, MODE__GENERAL, None)
 
 
 

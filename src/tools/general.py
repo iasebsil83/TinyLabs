@@ -8,11 +8,16 @@
 # -------- IMPORTATIONS --------
 
 #system
-import sys
-sys.path.append(".")
+import sys, os
+SRC_DIR = os.path.dirname(os.getcwd())
+if SRC_DIR not in sys.path:
+	sys.path.append(SRC_DIR)
+
+#strings
+import string
 
 #tools
-import config
+import tools.config as config
 
 
 
@@ -140,8 +145,7 @@ def edit(path):
 def checkIDName(name):
 	for c in name:
 		if c not in IDNAME_ALLOWED_CHARACTERS:
-			return False
-	return True
+			Err_fatal("Invalid name given '" + name + "' (must be only minimal/capital letters, '-' and '_').")
 
 
 
@@ -162,13 +166,8 @@ def isPath(lab):
 		Err_fatal("Unrecognized protocol '" + protocol + "'.")
 
 	#relative path
-	return True
-
-def onlyPath(lab):
-	if not isPath(lab):
-		Err_fatal("This service requires lab access by path only (no URL).")
-
-
+	except:
+		return True
 
 #listing elements
 def listUsers(lab):
@@ -202,22 +201,34 @@ def checkStatus(lab):
 	#URL address
 	Err_fatal("URL request for checking status has not been implemented yet")
 
-def getStatus(lab):
+def getStatus(lab, mode, relative_path):
 
 	#path address
 	if isPath(lab):
 
-		#read description file
-		try:
-			f = open(lab + "/description.txt", "r")
-			content = f.read()
-			f.close()
-		except (IOError, FileNotFoundError, PermissionError, IsADirectoryError):
-			Err_fatal("Unable to access to lab description.")
 
-		#print it
-		print("Description:")
-		print(content)
+
+		# CASE 1: GENERAL
+		if mode == MODE__GENERAL:
+
+			#read description file
+			try:
+				f = open(lab + "/description.txt", "r")
+				content = f.read()
+				f.close()
+			except (IOError, FileNotFoundError, PermissionError, IsADirectoryError):
+				Err_fatal("Unable to access to lab description.")
+
+			#print it
+			print("Description:")
+			print(content)
+
+
+
+		# CASE 2 : 
+		# UND
+		else:
+			Err_internal()
 
 	#URL address
 	Err_fatal("URL request for getting status hase not been implemented yet.")

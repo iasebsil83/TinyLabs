@@ -1,3 +1,3 @@
 #create link to the main program [TEMPORARY]
 tinylabs:
-	ln --symbolic $PWD/src/tinylabs $PWD/src
+	@ln --symbolic /opt/TinyLabs/src/tinylabs

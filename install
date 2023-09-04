@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+# --------------- TinyLabs - INSTALLATION -------------- #
+#                                                        #
+# You can modify the installation directory of TinyLabs  #
+# at ONE condition !                                     #
+#                                                        #
+# Please update the field INSTALL_DIR in source file :   #
+#                 src/tools/general.py                   #
+#                                                        #
+# Let's Code !                                   By I.A. #
+# ------------------------------------------------------ #
+
+
+
+
+# -------- DECLARATIONS --------
+
+#destination directory
+DEST_DIR='/opt/TinyLabs'
+
+
+
+
+
+
+# -------- EXECUTION --------
+
+# 1 - check current location
+if [[ $(dirname $0) != 'TinyLabs' ]]; then
+	echo "install: You must execute this script outside this repository." >&2
+	echo "         Example :  ./TinyLabs/install"                         >&2
+	exit 1
+fi
+
+
+
+# 2 - check existence of a previous install
+if [[ -e $DEST_DIR ]]; then
+	echo "install: A previous installation of TinyLabs already exists." >&2
+	echo "         [Installation aborted]"                              >&2
+	exit 1
+fi
+
+
+
+# 3 - copy repository to destination
+cp --recursive TinyLabs $DEST_DIR || {
+	echo "install: Unable to copy files to destination."          >&2
+	echo "         Please verify that you have write-access to :" >&2
+	echo "             $DEST_DIR/"                                >&2
+	echo "         [Installation aborted]"                        >&2
+	exit 1
+}
+
+
+
+# 4 - make project
+cd $DEST_DIR                                         && \
+make                                                 && \
+echo "Installation of TinyLabs succeeded !"          && \
+echo "You can access to it using the command line :" && \
+echo "    tinylabs --help"                           || {
+	echo "install: Unable to make the project."                                               >&2
+	echo "         Please try getting into installed project manually and run command : make" >&2
+	exit 1
+}
