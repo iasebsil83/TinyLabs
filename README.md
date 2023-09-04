@@ -53,7 +53,14 @@ Here are all the requirements for the storage devices that stores your labs :
 
 ### Install TinyLabs
 ```bash
+#clone repository
+git clone https://github.com/iasebsil83/TinyLabs
+ 
+#run installation program
 ./TinyLabs/install
+
+#if you want to access to tinylabs from everywhere (recommended)
+sudo ln --symbolic /opt/TinyLabs/tinylabs /usr/bin
 ```
 By default the installation directory is `/opt/TinyLabs` but you can modify it by editing the `install` program. \
 **WARNING : Mind that you will have to edit source file `src/tools/general.py` as well.**
@@ -66,6 +73,9 @@ To uninstall TinyLabs, you just have to remove the directory where you install i
 ```bash
 #by default: /opt/TinyLabs
 rm --recursive /opt/TinyLabs
+
+#if you have created the link during install
+sudo rm /usr/bin/tinylabs
 ```
 **NOTE: This will not affect the labs you have deployed with it. \
 It only concerns the lab management application.**

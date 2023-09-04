@@ -27,7 +27,7 @@ DEST_DIR='/opt/TinyLabs'
 # -------- EXECUTION --------
 
 # 1 - check current location
-if [[ $(dirname $0) != 'TinyLabs' ]]; then
+if [[ $(basename $(dirname $0)) != 'TinyLabs' ]]; then
 	echo "install: You must execute this script outside this repository." >&2
 	echo "         Example :  ./TinyLabs/install"                         >&2
 	exit 1
@@ -44,9 +44,9 @@ fi
 
 
 
-# 3 - copy repository to destination
-cp --recursive TinyLabs $DEST_DIR || {
-	echo "install: Unable to copy files to destination."          >&2
+# 3 - move repository to destination
+mv TinyLabs $DEST_DIR || {
+	echo "install: Unable to move files to destination."          >&2
 	echo "         Please verify that you have write-access to :" >&2
 	echo "             $DEST_DIR/"                                >&2
 	echo "         [Installation aborted]"                        >&2
