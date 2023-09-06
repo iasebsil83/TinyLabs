@@ -29,11 +29,16 @@ import tools.config as config
 #installation directory
 INSTALL_DIR = "/opt/TinyLabs"
 
-#default editor
-DEFAULT_EDITOR = "/usr/bin/nano" #"/usr/bin/vi"
+#current user
+CURRENT_USER = "admin" #os.environ["USER"]
 
-#IDName characters allowed
-IDNAME_ALLOWED_CHARACTERS = string.ascii_letters + "-_"
+#default applications
+DEFAULT_EDITOR  = "/usr/bin/nano" #"/usr/bin/vi" environment variable "EDITOR" will override this one
+WEB_BROWSER_APP = "google-chrome"
+
+#naming charsets
+IDNAME_ALLOWED_CHARS  = string.ascii_letters + "-_"
+HEXNAME_ALLOWED_CHARS = string.digits + "abcdef"
 
 #permissions
 GROUP_PERMISSIONS   = ("VIEW",  "ORGANIZE", "CONFIGURE") #sorted from the least permissive to the most one
@@ -80,6 +85,11 @@ def Err_internal(msg):
 	Err_raise("INTERNAL", msg)
 	exit(255)
 
+#filename extension
+def Path_extension(path):
+	if '.' in path:
+		return path.split('.')[-1]
+
 #filename without extension
 def Path_name(path):
 	if '.' in path:
@@ -125,7 +135,7 @@ def listOnlyDirs(path):
 
 #edit a file
 def edit(path):
-	editor_path = DEFAULT_EDITOR_PATH
+	editor_path = DEFAULT_EDITOR
 	if "EDITOR" in os.environ.keys():
 		editor_path = os.environ["EDITOR"]
 
@@ -144,8 +154,14 @@ def edit(path):
 #format
 def checkIDName(name):
 	for c in name:
-		if c not in IDNAME_ALLOWED_CHARACTERS:
+		if c not in IDNAME_ALLOWED_CHARS:
 			Err_fatal("Invalid name given '" + name + "' (must be only minimal/capital letters, '-' and '_').")
+
+def hasHexName(fse):
+	for c in Path_name(os.path.basename(fse)):
+		if c not HEXNAME_ALLOWED_CHARS:
+			return False
+	return True
 
 
 

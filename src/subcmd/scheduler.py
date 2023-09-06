@@ -13,6 +13,9 @@ SRC_DIR = os.path.dirname(os.getcwd())
 if SRC_DIR not in sys.path:
 	sys.path.append(SRC_DIR)
 
+#delay
+from time import sleep
+
 #tools
 import tools.config         as config
 from   tools.general        import *
@@ -35,9 +38,14 @@ def scheduler_activate(lab):
 			Err_fatal("Scheduler is already active.")
 
 		#activate scheduler
-		scheduler_cfg = config.readFile(lab + "/scheduler/.is_active")
+		scheduler_cfg = config.read(lab + "/scheduler/.is_active")
 		print("Activated scheduler.")
 		print("    Checking lab actions with periods of " + dateFormat_toPrintable(scheduler_cfg["DELAY_BETWEEN_CHECK"]) + '.')
+
+		#for the moment, stuck execution here <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< TEMPORARY
+		while os.path.exists(lab + "scheduler/.is_active"):
+			scheduler_run(lab)
+			sleep(scheduler_cfg["DELAY_BETWEEN_CHECK"])
 
 		#set activation flag (empty file)
 		open(lab + "/scheduler/.is_active", 'w')
@@ -71,6 +79,46 @@ def scheduler_deactivate(lab):
 
 # -------- EXECUTION --------
 
+#scheduler execution <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< TEMPORARILY HERE
+def scheduler_run(lab):
+	PWD = os.getcwd()
+
+	#for each trigger file
+	for fse in os.path.listdir(lab + "/scheduler/triggers"):
+
+		#criteria for being a triggerable by scheduler
+		if os.path.isfile(fse) and Path_extension(fse) == "cfg" and hasHexName(fse):
+			cfg = config.read(fse)
+
+			#get into targetted directory
+			if os.chdir( cfg["path"] ):
+				Err_runtime("[Scheduler] Could not get into directory '" + cfg["path"] + "'.")
+				continue
+
+			#for each action found (we must be in ".../actions" until now)
+			cfg.pop("path")
+			for action in cfg.keys():
+				err_before = os.system("echo '[$(date)] Action begin.' " + action + "/out.log")
+				err        = os.system(action + "/run.sh > " + action + "/out.log 2> " + action + "/err.log")
+				err_after  = os.system("echo '[$(date)] Action ended.' > " + action + "/out.log")
+
+				#small errors
+				if err_before:
+					Err_runtime("[Scheduler] Unable to write beginning message to action '" + action + "'.")
+				if err_after:
+					Err_runtime("[Scheduler] Unable to write end message to action '" + action + "'.")
+
+				#write also return code
+				f = open(action + "/err.code", "w")
+				f.write(str(err))
+				f.close()
+
+			#get back to previous location in case paths are relative (they should NOT but anyway)
+			if os.chdir(PWD):
+				Err_runtime("[Scheduler] Unable to get back to previous location.")
+
+
+
 #main
 def tinylabs_scheduler(args):
 
@@ -93,7 +141,6 @@ def tinylabs_scheduler(args):
 
 	#for each argument
 	indexes_to_remove = []
-	args = args[1:]
 	for a in range(len(args)):
 
 		#option detected

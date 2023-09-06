@@ -46,7 +46,6 @@ def tinylabs_project(args):
 
 	#for each argument
 	indexes_to_remove = []
-	args = args[1:]
 	for a in range(len(args)):
 
 		#option detected

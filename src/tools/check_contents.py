@@ -25,13 +25,14 @@ from   tools.general import *
 # -------- SETTINGS --------
 
 #settings.cfg files
-def checkSettings(lab, mode, filename): #filename is RELATIVE to lab path (or URL)
-	name        = os.path.basename( os.path.dirname(filename) )
-	error_found = False
+def checkSettings(lab, mode, relative_path):
+	name              = os.path.basename( os.path.dirname(relative_path) )
+	error_found       = False
+	action_path_found = False
 
 	#read content
 	if isPath(lab):
-		cfg = config.readFile(lab + '/' + filename)
+		cfg = config.read(lab + '/' + relative_path)
 	else:
 		Err_fatal("URL request for reading distant settings files has not been implemented yet.")
 
@@ -162,19 +163,31 @@ def checkSettings(lab, mode, filename): #filename is RELATIVE to lab path (or UR
 
 		# CASE 6: ACTION
 		elif mode == MODE__ACTION:
-			project_path = os.path.dirname(os.path.dirname(filename))
+			actions_path = os.path.dirname(relative_path) #relative_path given is .../proj/actions/settings.cfg
+			project_path = os.path.dirname(actions_path)
 			project_name = os.path.basename(project_path)
+			actions_list = listActions(lab, project_path)
 
-			#error case 1 : invalid field
-			if cfg_field not in listActions(lab, project_path):
-				Err_runtime("Invalid action IDName '" + cfg_field + "' in action settings of project '" + project_name + "'.")
-				error_found = True
-				continue
+			#special case : path definition
+			if cfg_field == "path":
+				if os.path.normpath(cfg[cfg_field]) != actions_path:
+					Err_runtime("Field 'path' given in settings '" + actions_path + "/settings.cfg' does not correponds to a real action path.")
+					action_path_found = True
+					error_found       = True
 
-			#error case 2 : invalid value
-			if not re.match("(MANUAL|EVERY[0-9]{9}|EACH[0-9]{9}|ANY_PUSH|TAG_PUSH.+)", cfg[cfg_field]):
-				Err_runtime("Invalid trigger pattern for action '" + cfg_field + "' in project '" + project_name + "'.")
-				error_found = True
+			#regular case
+			else:
+
+				#error case 1 : invalid field
+				if cfg_field not in listActions(lab, project_path):
+					Err_runtime("Invalid action IDName '" + cfg_field + "' in action settings of project '" + project_name + "'.")
+					error_found = True
+					continue
+
+				#error case 2 : invalid value
+				if not re.match("(MANUAL|EVERY[0-9]{9}|EACH[0-9]{9}|ANY_PUSH|TAG_PUSH.+)", cfg[cfg_field]):
+					Err_runtime("Invalid trigger pattern for action '" + cfg_field + "' in project '" + project_name + "'.")
+					error_found = True
 
 
 
@@ -182,9 +195,13 @@ def checkSettings(lab, mode, filename): #filename is RELATIVE to lab path (or UR
 		else:
 			Err_internal("Unknown mode '" + str(mode) + "' in settings check.")
 
+	#special case : action 'path' field
+	if mode == MODE__ACTION and not action_path_found:
+		Err_runtime("Missing field 'path' in action settings '" + os.path.dirname(relative_path) + "'.")
+
 	#errors found
 	if error_found:
-		Err_fatal("Errors found in config file '" + filename + "', stopping here.")
+		Err_fatal("Errors found in config file '" + relative_path + "', stopping here.")
 
 
 

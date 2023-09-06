@@ -37,8 +37,10 @@ def createNewAction(lab, action_path):
 		#beginning message
 		print("Starting action creation at '" + full_action_path + "'...")
 
-		#copy lab template
-		if shutil.copy2(INSTALL_DIR + "/templates/default/action", full_action_path):
+		#copy action template
+		try:
+			shutil.copytree(INSTALL_DIR + "/templates/default/action", full_action_path)
+		except (IOError, IsADirectoryError, FileNotFoundError):
 			Err_fatal("Error creating new action (could not copy default template to destination).")
 
 		#end message

@@ -36,8 +36,10 @@ def createNewUser(lab, user_idname):
 		#beginning message
 		print("Starting creation of configuration for user '" + user_idname + "'...")
 
-		#copy lab template
-		if shutil.copy2(INSTALL_DIR + "/templates/default/user.cfg", full_user_cfg_path):
+		#copy user template
+		try:
+			shutil.copytree(INSTALL_DIR + "/templates/default/user.cfg", full_user_cfg_path)
+		except (IOError, IsADirectoryError, FileNotFoundError):
 			Err_fatal("Error creating new user configuration (could not copy default template to destination).")
 
 		#end message

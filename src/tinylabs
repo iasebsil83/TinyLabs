@@ -25,6 +25,9 @@ from subcmd.group     import tinylabs_group
 from subcmd.project   import tinylabs_project
 from subcmd.scheduler import tinylabs_scheduler
 from subcmd.user      import tinylabs_user
+from subcmd.cui       import tinylabs_cui
+from subcmd.gui       import tinylabs_gui
+from subcmd.wui       import tinylabs_wui
 
 
 
@@ -87,7 +90,10 @@ def main(args):
 				print("             group     [options] <lab> <group_path>")
 				print("             project   [options] <lab> <project_path>")
 				print("             scheduler [options] <lab>")
-				print("             user      [options] <lab> <user_idname>")
+				print("             user      [options] <lab>")
+				print("             cui       [options] <lab>")
+				print("             gui       [options] <lab>")
+				print("             wui       [options] <lab>")
 				print()
 				print("Use option '--help' for more details about them.")
 				print()
@@ -134,24 +140,31 @@ def main(args):
 			else:
 				Err_fatal("Unknown option '" + args[a] + "'.")
 
+	#redirect to subcommands
+	if len(args) != 0:
+		if args[0] == "action":
+			tinylabs_action(args[1:])
+		elif args[0] == "group":
+			tinylabs_group(args[1:])
+		elif args[0] == "project":
+			tinylabs_project(args[1:])
+		elif args[0] == "scheduler":
+			tinylabs_scheduler(args[1:])
+		elif args[0] == "user":
+			tinylabs_user(args[1:])
+		elif args[0] == "cui":
+			tinylabs_cui(args[1:])
+		elif args[0] == "gui":
+			tinylabs_gui(args[1:])
+		elif args[0] == "wui":
+			tinylabs_wui(args[1:])
+
 	#update argument list
 	args = Lst_removeAll(args, indexes_to_remove)
 
 	#no arguments left
 	if len(args) == 0:
 		Err_fatal("Missing lab path or URL.")
-
-	#redirect to subcommands
-	if args[0] == "action":
-		tinylabs_action(args[1:])
-	if args[0] == "group":
-		tinylabs_group(args[1:])
-	if args[0] == "project":
-		tinylabs_project(args[1:])
-	if args[0] == "scheduler":
-		tinylabs_scheduler(args[1:])
-	if args[0] == "user":
-		tinylabs_user(args[1:])
 
 	#no redirection => that must be a lab path/URL
 	lab = args[0]

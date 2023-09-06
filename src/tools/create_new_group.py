@@ -37,8 +37,10 @@ def createNewGroup(lab, group_path):
 		#beginning message
 		print("Starting group creation at '" + full_group_path + "'...")
 
-		#copy lab template
-		if shutil.copy2(INSTALL_DIR + "/templates/default/group", full_group_path):
+		#copy group template
+		try:
+			shutil.copytree(INSTALL_DIR + "/templates/default/group", full_group_path)
+		except (IOError, IsADirectoryError, FileNotFoundError):
 			Err_fatal("Error creating new group (could not copy default template to destination).")
 
 		#end message

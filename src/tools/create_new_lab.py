@@ -6,7 +6,7 @@
 # -------- IMPORTATIONS --------
 
 #system
-import sys, os, sys
+import sys, os, shutil
 SRC_DIR = os.path.dirname(os.getcwd())
 if SRC_DIR not in sys.path:
 	sys.path.append(SRC_DIR)
@@ -30,14 +30,15 @@ def createNewLab(lab):
 			Err_fatal("Could not create lab at location '" + lab + "', element already exists.")
 
 		#check lab name
-		if not checkIDName(lab):
-			Err_fatal("Could not continue, stopping lab creation.")
+		checkIDName(os.path.basename(lab))
 
 		#beginning message
 		print("Starting lab creation at '" + lab + "'...")
 
 		#copy lab template
-		if shutil.copy2(INSTALL_DIR + "/templates/default/lab", lab):
+		try:
+			shutil.copytree(INSTALL_DIR + "/templates/default/lab", lab)
+		except (IOError, IsADirectoryError, FileNotFoundError):
 			Err_fatal("Error creating new lab (could not copy default template to destination).")
 
 		#end message
